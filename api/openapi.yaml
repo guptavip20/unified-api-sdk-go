@@ -1,0 +1,1304 @@
+openapi: 3.0.1
+info:
+  contact:
+    name: GLCP team
+    url: http://www.hpe.com/greenlake
+  description: |
+    Allow registration of information needed for routing GLCP APIs.
+  license:
+    name: HPE End User License Agreement
+    url: https://www.hpe.com/us/en/software/licensing.html
+  termsOfService: https://www.hpe.com/us/en/about/legal/terms-of-use.html
+  title: GLCP Unified API Routing Services API
+  version: v1alpha1
+servers:
+- description: Unified API Intg
+  url: http://localhost:5001
+security:
+- bearerAuth: []
+paths:
+  /unified-routing/v1alpha1/application-instances:
+    delete:
+      description: Remove application instance records based on query parameter filter.
+        Filter string is required.
+      operationId: RemoveInstance
+      parameters:
+      - description: "The filter query parameter is used to limit the set of resources\
+          \ to be deleted in a collection-level DELETE. \n\n| CLASS      |  EXAMPLES\
+          \                                  |\n|------------|--------------------------------------------|\n\
+          | Type       | string                                     |\n| Operations\
+          \ | eq                                         |\n| Criteria   | applicationInstanceId,\
+          \ applicationId, region |\n| Logic      | and                          \
+          \              |\n"
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "204":
+          description: NoContent
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Remove application instances.
+      tags:
+      - unifiedapioas
+    get:
+      description: List application instance records based on query parameter filter.
+        Filter string is optional. Result is paginated.
+      operationId: ListInstances
+      parameters:
+      - description: |
+          The filter query parameter is used to limit the set of resources returned in a collection-level GET. The returned set of resources must match the criteria in the filter.
+
+          | CLASS      |  EXAMPLES                                  |
+          |------------|--------------------------------------------|
+          | Type       | string                                     |
+          | Operations | eq                                         |
+          | Criteria   | externalApiEndpoint, applicationInstanceId, applicationId, region |
+          | Logic      | and                                        |
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Limits the number of results returned. Default is 50, max is\
+          \ 200."
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          type: integer
+        style: form
+      - description: The pagination cursor for the next page of resources.
+        explode: true
+        in: query
+        name: next
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInstanceList'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: List application instances.
+      tags:
+      - unifiedapioas
+    patch:
+      description: Update specific fields of application instance record based on
+        the query parameter filter. Filter string is required.
+      operationId: PatchInstance
+      parameters:
+      - description: |
+          The filter query parameter is used to limit the set of resources to be updated in PATCH call. The returned set of resources must match the criteria in the filter.
+
+          | CLASS      |  EXAMPLES                                  |
+          |------------|--------------------------------------------|
+          | Type       | string                                     |
+          | Operations | eq                                         |
+          | Criteria   | applicationInstanceId                      |
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/AppInstancePatch'
+        description: Fields to be updated in the application instance record.
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInstanceExtended'
+          description: Created
+          headers:
+            Location:
+              description: URL of created application instance record.
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Update fields of an application instance.
+      tags:
+      - unifiedapioas
+    post:
+      description: Create application instance record when new application instance
+        is onboarded.
+      operationId: CreateInstance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppInstanceBasic'
+        description: Information about the application instance record to be created
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInstanceExtended'
+          description: Created
+          headers:
+            Location:
+              description: URL of created application instance record.
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Create application instance.
+      tags:
+      - unifiedapioas
+  /unified-routing/v1alpha1/customer-provisions:
+    delete:
+      description: Remove customer provision records based on query parameter filter.
+        Filter string is required.
+      operationId: RemoveProvision
+      parameters:
+      - description: |
+          The filter query parameter is used to limit the set of resources to be deleted in a collection-level DELETE.
+
+          | CLASS      |  EXAMPLES                                  |
+          |------------|--------------------------------------------|
+          | Type       | string                                     |
+          | Operations | eq                                         |
+          | Criteria   | workspaceId, applicationInstanceId, applicationId, region |
+          | Logic      | and                                        |
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "204":
+          description: NoContent
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Remove customer provisions.
+      tags:
+      - unifiedapioas
+    get:
+      description: List customer provision records based on query parameter filter.
+        Filter string is optional. Result is paginated.
+      operationId: ListProvisions
+      parameters:
+      - description: |
+          The filter query parameter is used to limit the set of resources returned in a collection-level GET. The returned set of resources must match the criteria in the filter.
+
+          | CLASS      |  EXAMPLES                                  |
+          |------------|--------------------------------------------|
+          | Type       | string                                     |
+          | Operations | eq                                         |
+          | Criteria   | workspaceId, applicationInstanceId, applicationId, region |
+          | Logic      | and                                        |
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Limits the number of results returned. Default is 50, max is\
+          \ 200."
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          type: integer
+        style: form
+      - description: The pagination cursor for the next page of resources.
+        explode: true
+        in: query
+        name: next
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProvisionList'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: List customer provisions.
+      tags:
+      - unifiedapioas
+    post:
+      description: Create customer provision record when customer provisions an application
+        instance.
+      operationId: CreateProvision
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerProvisionBasic'
+        description: Information about the customer provision record to be created
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProvisionExtended'
+          description: Created
+          headers:
+            Location:
+              description: URL of created customer provision record.
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Create customer provision.
+      tags:
+      - unifiedapioas
+  /unified-routing/v1alpha1/customer-provisions/{id}:
+    delete:
+      description: Remove customer provision record by ID.
+      operationId: RemoveProvisionOnID
+      parameters:
+      - description: Customer Provision Record ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: NoContent
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Remove customer provision by ID.
+      tags:
+      - unifiedapioas
+    get:
+      description: Get customer provision record by ID.
+      operationId: GetProvisionOnID
+      parameters:
+      - description: Customer Provision Record ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProvisionExtended'
+          description: Created
+          headers:
+            Location:
+              description: URL of created customer provision record.
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Get customer provision by ID.
+      tags:
+      - unifiedapioas
+  /unified-routing/v1alpha1/api-groups:
+    delete:
+      description: Remove API group records based on the query parameter filter. Filter
+        string is required.
+      operationId: DeleteAPIGroup
+      parameters:
+      - description: |
+          The filter query parameter is used to limit the set of resources to be deleted in a collection-level DELETE.
+
+          | CLASS      |  EXAMPLES                                  |
+          |------------|--------------------------------------------|
+          | Type       | string                                     |
+          | Operations | eq                                         |
+          | Criteria   | applicationId, apiGroup                    |
+          | Logic      | and                                        |
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "204":
+          description: NoContent
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Remove API group.
+      tags:
+      - unifiedapioas
+    get:
+      description: List API group records based on query parameter filter. Filter
+        string is optional. Result is paginated.
+      operationId: GetAPIGroup
+      parameters:
+      - description: |
+          The filter query parameter is used to limit the set of resources returned in a collection-level GET. The returned set of resources must match the criteria in the filter.
+
+          | CLASS      |  EXAMPLES                                  |
+          |------------|--------------------------------------------|
+          | Type       | string                                     |
+          | Operations | eq                                         |
+          | Criteria   | applicationId, apiGroup                    |
+          | Logic      | and                                        |
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Limits the number of results returned.
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          type: integer
+        style: form
+      - description: The pagination cursor for the next page of resources.
+        explode: true
+        in: query
+        name: next
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiGroupList'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: List API groups.
+      tags:
+      - unifiedapioas
+    post:
+      description: Create an API group record for an application.
+      operationId: CreateAPIGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiGroupBasic'
+        description: Information about the API group record to be created
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiGroupExtended'
+          description: Created
+          headers:
+            Location:
+              description: URL of created api group.
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Create API group.
+      tags:
+      - unifiedapioas
+  /unified-routing/v1alpha1/api-groups/{id}:
+    delete:
+      description: Remove API group record by ID.
+      operationId: DeleteAPIGroupOnID
+      parameters:
+      - description: API Group Record ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: NoContent
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Remove API Group by ID.
+      tags:
+      - unifiedapioas
+    get:
+      description: Get API group record by ID.
+      operationId: GetAPIGroupOnID
+      parameters:
+      - description: API Group Record ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiGroupExtended'
+          description: Created
+          headers:
+            Location:
+              description: URL of created api group.
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Not Found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCodeMsg'
+          description: Internal Server Error
+      summary: Get API group by ID.
+      tags:
+      - unifiedapioas
+components:
+  parameters:
+    apiGroupGetFilterParam:
+      description: |
+        The filter query parameter is used to limit the set of resources returned in a collection-level GET. The returned set of resources must match the criteria in the filter.
+
+        | CLASS      |  EXAMPLES                                  |
+        |------------|--------------------------------------------|
+        | Type       | string                                     |
+        | Operations | eq                                         |
+        | Criteria   | applicationId, apiGroup                    |
+        | Logic      | and                                        |
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+    appInstanceGetFilterParam:
+      description: |
+        The filter query parameter is used to limit the set of resources returned in a collection-level GET. The returned set of resources must match the criteria in the filter.
+
+        | CLASS      |  EXAMPLES                                  |
+        |------------|--------------------------------------------|
+        | Type       | string                                     |
+        | Operations | eq                                         |
+        | Criteria   | externalApiEndpoint, applicationInstanceId, applicationId, region |
+        | Logic      | and                                        |
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+    customerProvisionGetFilterParam:
+      description: |
+        The filter query parameter is used to limit the set of resources returned in a collection-level GET. The returned set of resources must match the criteria in the filter.
+
+        | CLASS      |  EXAMPLES                                  |
+        |------------|--------------------------------------------|
+        | Type       | string                                     |
+        | Operations | eq                                         |
+        | Criteria   | workspaceId, applicationInstanceId, applicationId, region |
+        | Logic      | and                                        |
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+    appInstancePatchFilterParam:
+      description: |
+        The filter query parameter is used to limit the set of resources to be updated in PATCH call. The returned set of resources must match the criteria in the filter.
+
+        | CLASS      |  EXAMPLES                                  |
+        |------------|--------------------------------------------|
+        | Type       | string                                     |
+        | Operations | eq                                         |
+        | Criteria   | applicationInstanceId                      |
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+    appInstanceDeleteFilterParam:
+      description: "The filter query parameter is used to limit the set of resources\
+        \ to be deleted in a collection-level DELETE. \n\n| CLASS      |  EXAMPLES\
+        \                                  |\n|------------|--------------------------------------------|\n\
+        | Type       | string                                     |\n| Operations\
+        \ | eq                                         |\n| Criteria   | applicationInstanceId,\
+        \ applicationId, region |\n| Logic      | and                            \
+        \            |\n"
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+    apiGroupDeleteFilterParam:
+      description: |
+        The filter query parameter is used to limit the set of resources to be deleted in a collection-level DELETE.
+
+        | CLASS      |  EXAMPLES                                  |
+        |------------|--------------------------------------------|
+        | Type       | string                                     |
+        | Operations | eq                                         |
+        | Criteria   | applicationId, apiGroup                    |
+        | Logic      | and                                        |
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+    customerProvisionDeleteFilterParam:
+      description: |
+        The filter query parameter is used to limit the set of resources to be deleted in a collection-level DELETE.
+
+        | CLASS      |  EXAMPLES                                  |
+        |------------|--------------------------------------------|
+        | Type       | string                                     |
+        | Operations | eq                                         |
+        | Criteria   | workspaceId, applicationInstanceId, applicationId, region |
+        | Logic      | and                                        |
+      explode: true
+      in: query
+      name: filter
+      required: false
+      schema:
+        type: string
+      style: form
+  responses:
+    AppInstanceExtendedResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AppInstanceExtended'
+      description: Created
+      headers:
+        Location:
+          description: URL of created application instance record.
+          explode: false
+          schema:
+            type: string
+          style: simple
+    AppInstanceListResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AppInstanceList'
+      description: OK
+    CustomerProvisionExtendedResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CustomerProvisionExtended'
+      description: Created
+      headers:
+        Location:
+          description: URL of created customer provision record.
+          explode: false
+          schema:
+            type: string
+          style: simple
+    CustomerProvisionListResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CustomerProvisionList'
+      description: OK
+    ApiGroupExtendedResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiGroupExtended'
+      description: Created
+      headers:
+        Location:
+          description: URL of created api group.
+          explode: false
+          schema:
+            type: string
+          style: simple
+    ApiGroupListResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiGroupList'
+      description: OK
+    NoContent:
+      description: NoContent
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorCodeMsg'
+      description: BadRequest
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorCodeMsg'
+      description: Forbidden
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorCodeMsg'
+      description: Not Found
+    InternalServerError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorCodeMsg'
+      description: Internal Server Error
+  schemas:
+    AppInstanceBasic:
+      example:
+        region: region
+        applicationId: applicationId
+        applicationInstanceId: applicationInstanceId
+      properties:
+        applicationInstanceId:
+          type: string
+        region:
+          type: string
+        applicationId:
+          type: string
+      required:
+      - applicationId
+      - applicationInstanceId
+      - region
+      type: object
+    AppInstanceExtended:
+      allOf:
+      - $ref: '#/components/schemas/AppInstanceBasic'
+      - properties:
+          id:
+            format: uuid
+            type: string
+          createdAt:
+            type: string
+          updatedAt:
+            type: string
+          type:
+            type: string
+          generation:
+            type: integer
+          externalApiEndpoint:
+            type: string
+        required:
+        - id
+        - type
+        type: object
+      example:
+        generation: 0
+        createdAt: createdAt
+        externalApiEndpoint: externalApiEndpoint
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        region: region
+        applicationId: applicationId
+        type: type
+        applicationInstanceId: applicationInstanceId
+        updatedAt: updatedAt
+    AppInstancePatch:
+      description: A JSONPatch document RFC 7396
+      properties:
+        externalApiEndpoint:
+          type: string
+      type: object
+    AppInstanceList:
+      example:
+        next: next
+        count: 6
+        items:
+        - generation: 0
+          createdAt: createdAt
+          externalApiEndpoint: externalApiEndpoint
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          region: region
+          applicationId: applicationId
+          type: type
+          applicationInstanceId: applicationInstanceId
+          updatedAt: updatedAt
+        - generation: 0
+          createdAt: createdAt
+          externalApiEndpoint: externalApiEndpoint
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          region: region
+          applicationId: applicationId
+          type: type
+          applicationInstanceId: applicationInstanceId
+          updatedAt: updatedAt
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AppInstanceExtended'
+          type: array
+        count:
+          type: integer
+        next:
+          type: string
+      required:
+      - count
+      - items
+      - next
+      type: object
+    CustomerProvisionBasic:
+      example:
+        region: region
+        applicationId: applicationId
+        applicationInstanceId: applicationInstanceId
+        workspaceId: workspaceId
+      properties:
+        applicationInstanceId:
+          type: string
+        region:
+          type: string
+        applicationId:
+          type: string
+        workspaceId:
+          type: string
+      required:
+      - applicationId
+      - applicationInstanceId
+      - region
+      - workspaceId
+      type: object
+    CustomerProvisionExtended:
+      allOf:
+      - $ref: '#/components/schemas/CustomerProvisionBasic'
+      - properties:
+          id:
+            format: uuid
+            type: string
+          createdAt:
+            type: string
+          updatedAt:
+            type: string
+          type:
+            type: string
+          generation:
+            type: integer
+        required:
+        - id
+        - type
+        type: object
+      example:
+        generation: 0
+        createdAt: createdAt
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        region: region
+        applicationId: applicationId
+        type: type
+        applicationInstanceId: applicationInstanceId
+        workspaceId: workspaceId
+        updatedAt: updatedAt
+    CustomerProvisionList:
+      example:
+        next: next
+        count: 6
+        items:
+        - generation: 0
+          createdAt: createdAt
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          region: region
+          applicationId: applicationId
+          type: type
+          applicationInstanceId: applicationInstanceId
+          workspaceId: workspaceId
+          updatedAt: updatedAt
+        - generation: 0
+          createdAt: createdAt
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          region: region
+          applicationId: applicationId
+          type: type
+          applicationInstanceId: applicationInstanceId
+          workspaceId: workspaceId
+          updatedAt: updatedAt
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/CustomerProvisionExtended'
+          type: array
+        count:
+          type: integer
+        next:
+          type: string
+      required:
+      - count
+      - items
+      - next
+      type: object
+    ApiGroupBasic:
+      example:
+        apiGroup: apiGroup
+        applicationId: applicationId
+      properties:
+        applicationId:
+          type: string
+        apiGroup:
+          type: string
+      required:
+      - apiGroup
+      - applicationId
+      type: object
+    ApiGroupExtended:
+      allOf:
+      - $ref: '#/components/schemas/ApiGroupBasic'
+      - properties:
+          id:
+            format: uuid
+            type: string
+          createdAt:
+            type: string
+          updatedAt:
+            type: string
+          type:
+            type: string
+          generation:
+            type: integer
+        required:
+        - id
+        - type
+        type: object
+      example:
+        generation: 0
+        createdAt: createdAt
+        apiGroup: apiGroup
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        applicationId: applicationId
+        type: type
+        updatedAt: updatedAt
+    ApiGroupList:
+      example:
+        next: next
+        count: 6
+        items:
+        - generation: 0
+          createdAt: createdAt
+          apiGroup: apiGroup
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          applicationId: applicationId
+          type: type
+          updatedAt: updatedAt
+        - generation: 0
+          createdAt: createdAt
+          apiGroup: apiGroup
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          applicationId: applicationId
+          type: type
+          updatedAt: updatedAt
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ApiGroupExtended'
+          type: array
+        count:
+          type: integer
+        next:
+          type: string
+      required:
+      - count
+      - items
+      - next
+      type: object
+    ErrorCodeMsg:
+      example:
+        errorCode: HPE_GL_ERROR_BAD_REQUEST
+        debugId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        message: Authentication error
+        httpStatusCode: 401
+      properties:
+        httpStatusCode:
+          description: The HTTP equivalent status code
+          example: 401
+          type: integer
+        errorCode:
+          description: A unique machine-friendly identifier for the error from a global
+            list of enumerated identifier strings
+          example: HPE_GL_ERROR_BAD_REQUEST
+          type: string
+        message:
+          description: A user-friendly error message
+          example: Authentication error
+          type: string
+        debugId:
+          description: A unique identifier for the instance of this error. This can
+            be used to help with troubleshooting. May be the same as a trace id (see
+            Trace Headers) for ease of log tracing
+          format: uuid
+          type: string
+      required:
+      - debugId
+      - errorCode
+      - httpStatusCode
+      - message
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
